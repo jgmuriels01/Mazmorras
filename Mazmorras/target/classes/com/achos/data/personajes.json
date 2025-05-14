@@ -21,5 +21,11 @@
         "Velocidad": 10,
         "Fuerza": 8,
         "Percepcion": 7
+    },
+    {
+        "Nombre": "Cobarde",
+        "Velocidad": 5,
+        "Fuerza": 5,
+        "Percepcion": 5
     }
 ]

@@ -27,7 +27,7 @@ public class Partida {
     private static boolean partidaNueva = true;
     private static int fuerza = 0;
     private static int velocidad = 0;
-    private int[][] spawn = new int[][] { { 13, 1 }, { 5, 13 }, { 8, 1 }, { 1, 13 } };
+    private int[][] spawn = new int[][] { { 13, 1 }, { 5, 13 }, { 8, 1 }, { 1, 13 }, { 13, 6 } };
     private String nombreMapa;
     private Mapa mapa;
     private boolean gameOver;
@@ -40,7 +40,7 @@ public class Partida {
     /**
      * Constructor privado.
      * 
-     * @param observer 
+     * @param observer
      */
     public void subscribe(Observer observer) {
         observers.add(observer);
@@ -194,6 +194,12 @@ public class Partida {
                                 personaje.setPosicion(spawn[i]);
                             }
                             break;
+                        case 4:
+                            if (personaje.getTipoPersonaje() == TipoPersonaje.COBARDE) {
+                                buscarCelda(spawn[i]).setOcupadoPor(personaje);
+                                personaje.setPosicion(spawn[i]);
+                            }
+                            break;
                         default:
                             break;
                     }
@@ -201,12 +207,14 @@ public class Partida {
             }
         }
 
-        /* buscarCelda(spawn[1]).setOcupadoPor(buscarPersonaje(TipoPersonaje.MANU));
-        buscarPersonaje(TipoPersonaje.MANU).setPosicion(spawn[1]);
-        buscarCelda(spawn[2]).setOcupadoPor(buscarPersonaje(TipoPersonaje.GLORIA));
-        buscarPersonaje(TipoPersonaje.GLORIA).setPosicion(spawn[2]);
-        buscarCelda(spawn[3]).setOcupadoPor(buscarPersonaje(TipoPersonaje.GABINO));
-        buscarPersonaje(TipoPersonaje.GABINO).setPosicion(spawn[3]); */
+        /*
+         * buscarCelda(spawn[1]).setOcupadoPor(buscarPersonaje(TipoPersonaje.MANU));
+         * buscarPersonaje(TipoPersonaje.MANU).setPosicion(spawn[1]);
+         * buscarCelda(spawn[2]).setOcupadoPor(buscarPersonaje(TipoPersonaje.GLORIA));
+         * buscarPersonaje(TipoPersonaje.GLORIA).setPosicion(spawn[2]);
+         * buscarCelda(spawn[3]).setOcupadoPor(buscarPersonaje(TipoPersonaje.GABINO));
+         * buscarPersonaje(TipoPersonaje.GABINO).setPosicion(spawn[3]);
+         */
     }
 
     /**
@@ -252,7 +260,11 @@ public class Partida {
         for (int i = 0; i < personajesCopia.size(); i++) {
             if (personajesCopia.get(i) instanceof Heroe) {
                 moverHeroe(posicion);
+            } else if (personajesCopia.get(i) instanceof Cobarde) {
+                Cobarde cobarde = (Cobarde) personajesCopia.get(i);
+                moverCobarde(cobarde);
             } else {
+
                 Enemigo enemigo = (Enemigo) personajesCopia.get(i);
                 moverEnemigo(enemigo);
             }
@@ -298,7 +310,7 @@ public class Partida {
      * Mueve el enemigo a la nueva posicion. Si la nueva posicion es el heroe, el
      * heroe pierde vida.
      * 
-     * @param enemigo 
+     * @param enemigo
      */
     public void moverEnemigo(Enemigo enemigo) {
         if (enemigo.getVida() > 0) {
@@ -335,6 +347,49 @@ public class Partida {
                     buscarCelda(enemigo.getPosicion()).setOcupadoPor(enemigo);
                     System.out.println(enemigo.getNombre() + " se mueve a " + enemigo.getPosicion()[0] + ","
                             + enemigo.getPosicion()[1]);
+                }
+
+            }
+
+        }
+
+    }
+
+    public void moverCobarde(Cobarde cobarde) {
+        if (cobarde.getVida() > 0) {
+            if (Posicion.distancia(heroe.getPosicion(), cobarde.getPosicion()) <= cobarde.getPercepcion()) {
+                System.out.print(cobarde.getNombre() + " ve al Heroe. ");
+                ArrayList<int[]> cruceta = Posicion.crearCruceta(cobarde.getPosicion());
+                Posicion.limpiarFueraLimites(cruceta, mapa);
+                Posicion.limpiarMuro(cruceta, mapa);
+                int[] posicionMasLejos = Posicion.posicionMasLejos(heroe.getPosicion(), cruceta);
+                if (buscarCelda(posicionMasLejos).getOcupadoPor() != null) {
+                    if (Arrays.equals(posicionMasLejos, heroe.getPosicion())) {
+                        heroe.perderVida(cobarde.atacar());
+                        System.out.println(cobarde.getNombre() + " ataca a Heroe");
+                        if (gameOver()) {
+                            setGameOver(true);
+                        }
+                    }
+                } else {
+                    buscarCelda(cobarde.getPosicion()).setOcupadoPor(null);
+                    cobarde.setPosicion(posicionMasLejos);
+                    buscarCelda(cobarde.getPosicion()).setOcupadoPor(cobarde);
+                    System.out.println(cobarde.getNombre() + " se mueve a " + cobarde.getPosicion()[0] + ","
+                            + cobarde.getPosicion()[1]);
+                }
+            } else {
+                System.out.print(cobarde.getNombre() + " no ve al Heroe. ");
+                ArrayList<int[]> cruceta = Posicion.crearCruceta(cobarde.getPosicion());
+                Posicion.limpiarFueraLimites(cruceta, mapa);
+                Posicion.limpiarMuro(cruceta, mapa);
+                int numPosicion = random.nextInt(cruceta.size());
+                if (buscarCelda(cruceta.get(numPosicion)).getOcupadoPor() == null) {
+                    buscarCelda(cobarde.getPosicion()).setOcupadoPor(null);
+                    cobarde.setPosicion(cruceta.get(numPosicion));
+                    buscarCelda(cobarde.getPosicion()).setOcupadoPor(cobarde);
+                    System.out.println(cobarde.getNombre() + " se mueve a " + cobarde.getPosicion()[0] + ","
+                            + cobarde.getPosicion()[1]);
                 }
 
             }
@@ -407,7 +462,7 @@ public class Partida {
     /**
      * Main para testeo
      * 
-     * @param args 
+     * @param args
      */
     public static void main(String[] args) {
         Partida partida = new Partida();

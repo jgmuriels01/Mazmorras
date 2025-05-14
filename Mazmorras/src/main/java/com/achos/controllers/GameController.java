@@ -152,6 +152,8 @@ public class GameController implements Observer {
                     return "/com/achos/images/manu-cenital.png";
                 case GLORIA:
                     return "/com/achos/images/gloria-cenital.png";
+                case COBARDE:
+                    return "/com/achos/images/cobarde.png";
                 default:
                     return null;
             }
@@ -176,6 +178,8 @@ public class GameController implements Observer {
                     return "/com/achos/images/manu-frontal.png";
                 case GLORIA:
                     return "/com/achos/images/gloria-frontal.png";
+                case COBARDE:
+                    return "/com/achos/images/cobarde.png";
                 default:
                     return null;
             }

@@ -120,6 +120,15 @@ public class Posicion {
         }
         return posicionFinal;
     }
+    public static int[] posicionMasLejos(int[] posicion, ArrayList<int[]> cruceta) {
+        int[] posicionFinal = cruceta.get(0);
+        for (int i = 1; i < cruceta.size(); i++) {
+            if (distancia(posicion, cruceta.get(i)) > distancia(posicion, posicionFinal)) {
+                posicionFinal = cruceta.get(i);
+            }
+        }
+        return posicionFinal;
+    }
 
     /**
      * Mueve una posicion a otra posicion
